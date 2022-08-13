@@ -1,9 +1,9 @@
 const Product = require("../models/productModel");
 const ErrorHander = require("../utils/errorHander");
-const catckAsyncErrors =require("../middleware/catchAsyncErrors")
+const catchAsyncErrors =require("../middleware/catchAsyncErrors")
 
 // Product Creation Admin
-exports.createProduct = catckAsyncErrors(async (req, res, next) => {
+exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 
     const product = await Product.create(req.body);
 
@@ -14,7 +14,7 @@ exports.createProduct = catckAsyncErrors(async (req, res, next) => {
 });
 
 // get all products
-exports.getAllProducts =catckAsyncErrors(async(req, res)=>{
+exports.getAllProducts =catchAsyncErrors(async(req, res)=>{
     const products = await Product.find(); 
     res.status(200).json({success: true,
         products})
@@ -22,7 +22,7 @@ exports.getAllProducts =catckAsyncErrors(async(req, res)=>{
 });
 
 //Get Product Details
-exports.getProductDetails = catckAsyncErrors( async(req, res, next) => {
+exports.getProductDetails = catchAsyncErrors( async(req, res, next) => {
     const product = await Product.findById(req.params.id);
 
     if(!product) {
@@ -36,7 +36,7 @@ exports.getProductDetails = catckAsyncErrors( async(req, res, next) => {
 });
 
 //Update Product -- admin
-exports.updateProduct =catckAsyncErrors(async(req, res, next) => {
+exports.updateProduct =catchAsyncErrors(async(req, res, next) => {
     let product = await Product.findById(req.params.id);
 
     if(!product) {
@@ -57,7 +57,7 @@ exports.updateProduct =catckAsyncErrors(async(req, res, next) => {
 
 //Delete Product
 
-exports.deleteProduct =catckAsyncErrors(async(req, res, next) =>{
+exports.deleteProduct =catchAsyncErrors(async(req, res, next) =>{
     const product = await Product.findById(req.params.id);
 
     if(!product) {
