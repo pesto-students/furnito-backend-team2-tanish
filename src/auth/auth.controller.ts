@@ -16,4 +16,10 @@ export class AuthController {
   login(@Body() dto: AuthDto) {
     return this.authService.login(dto);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-jwt')
+  verifyJWT(@Body() payload: { jwt: string }) {
+    return this.authService.verifyJwt(payload.jwt);
+  }
 }
