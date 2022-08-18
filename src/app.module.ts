@@ -12,7 +12,9 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/furnito'),
+    MongooseModule.forRoot(
+      'mongodb+srv://furnito:furnito123@cluster0.pbn2qja.mongodb.net/User?retryWrites=true&w=majority',
+    ),
     UserModule,
     AuthModule,
   ],
