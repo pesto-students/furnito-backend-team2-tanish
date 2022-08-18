@@ -1,96 +1,78 @@
-import {
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { AuthDto } from './dto/auth.dto';
-import * as argon from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { NewUserDTO } from '../user/dtos/new-user.dto';
+import { ExistingUserDTO } from '../user/dtos/existing-user.dto';
+import { UserService } from '../user/user.service';
+import * as bcrypt from 'bcrypt';
+import { UserDetails } from '../user/user-details.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prismaService: PrismaService,
+    private userService: UserService,
     private jwtService: JwtService,
-    private configService: ConfigService,
   ) {}
 
-  async signup(dto: AuthDto) {
-    //generate the password hash
-    const hash = await argon.hash(dto.password);
-
-    //save the user to the database and return the user
-    try {
-      const user = await this.prismaService.user.create({
-        data: {
-          email: dto.email,
-          hash,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-        },
-      });
-      return this.token(user);
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ForbiddenException('User already exists');
-      }
-      throw error;
-    }
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 12);
   }
 
-  async login(dto: AuthDto) {
-    //find the user by email
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        email: dto.email,
-      },
-    });
+  async register(user: Readonly<NewUserDTO>): Promise<UserDetails | any> {
+    const { name, email, password } = user;
+    const existingUser = await this.userService.findOneByEmail(email);
+    if (existingUser) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+    }
+    const hashedPassword = await this.hashPassword(password);
+    const newUser = await this.userService.create(name, email, hashedPassword);
+    return this.userService._getUserDetails(newUser);
+  }
 
-    // if the user is not found, throw an exception
+  async doesPasswordMatch(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserDetails | any> {
+    const user = await this.userService.findOneByEmail(email);
+    const doesUserExist = !!user;
+    if (!doesUserExist) {
+      throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
+    }
+    const doesPasswordMatch = await this.doesPasswordMatch(
+      password,
+      user.password,
+    );
+    if (!doesPasswordMatch) {
+      throw new HttpException(
+        'Password does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return this.userService._getUserDetails(user);
+  }
+
+  async login(existingUser: ExistingUserDTO): Promise<{ access_token } | null> {
+    const { email, password } = existingUser;
+    const user = await this.validateUser(email, password);
     if (!user) {
-      throw new ForbiddenException('User not found');
+      throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
     }
-
-    //check if the password matches with the hash
-    const pwMatch = await argon.verify(user.hash, dto.password);
-
-    //if the password does not match, throw an exception
-    if (!pwMatch) {
-      throw new ForbiddenException('Password is incorrect');
-    }
-
-    return this.token(user);
+    const jwt = this.jwtService.signAsync({ user });
+    return { access_token: jwt };
   }
 
-  //jwt tokenizer
-  async token(user: any): Promise<{ access_token: string }> {
-    const payload = {
-      sub: user.id,
-      email: user.email,
-    };
-    const secret = this.configService.get('JWT_SECRET');
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '9h',
-      secret: secret,
-    });
-    return {
-      access_token: token,
-    };
-  }
-
-  async verifyJwt(jwt: string): Promise<{ exp: number }> {
+  verifyJwt(jwt: string) {
     try {
-      const { exp } = await this.jwtService.verifyAsync(jwt);
+      const { exp } = this.jwtService.verify(jwt);
       return { exp };
     } catch (error) {
-      throw new HttpException('Invalid JWT', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
   }
 }

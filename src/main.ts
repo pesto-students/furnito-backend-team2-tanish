@@ -1,16 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-    }),
-  );
+  const config = new DocumentBuilder()
+    .setTitle('Furnito')
+    .setDescription('We ensure the best quality for your furniture')
+    .setVersion('1.0')
+    .addTag('furnito')
+    .build();
   app.enableCors();
-  const port = process.env.PORT || 3000;
+  app.setGlobalPrefix('api');
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+  const port = process.env.PORT || 4000;
   await app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });

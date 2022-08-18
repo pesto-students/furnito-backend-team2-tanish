@@ -1,37 +1,45 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { EditUserDto } from './dto/edit-user.dto';
-import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { UserDetails } from './user-details.interface';
+import { UserDocument } from './user.schema.';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<UserDocument>,
+  ) {}
 
-  async editUser(userId: string, dto: EditUserDto) {
-    const user = await this.prismaService.user.update({
-      where: { id: userId },
-      data: {
-        ...dto,
-      },
-    });
-    delete user.hash;
-    return user;
+  _getUserDetails(user: UserDocument): UserDetails {
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
   }
 
-  async deleteUser(userId: string) {
-    try {
-      const user = await this.prismaService.user.delete({
-        where: { id: userId },
-      });
-      delete user.hash;
-      return user;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('User already exists');
-        }
-      }
-      throw error;
+  async findOneByEmail(email: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
+  async findById(id: string): Promise<UserDetails | null> {
+    const user = this.userModel.findById(id).exec();
+    if (!user) {
+      return null;
     }
+    return this._getUserDetails(await user);
+  }
+
+  async create(
+    name: string,
+    email: string,
+    hashedPassword: string,
+  ): Promise<UserDocument> {
+    const newUser = new this.userModel({
+      name,
+      email,
+      password: hashedPassword,
+    });
+    return newUser.save();
   }
 }
