@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { NewUserDTO } from '../user/dtos/new-user.dto';
-import { ExistingUserDTO } from '../user/dtos/existing-user.dto';
+import { NewUserDTO } from '../user/dto/new-user.dto';
+import { ExistingUserDTO } from '../user/dto/existing-user.dto';
 import { UserDetails } from '../user/user-details.interface';
 
 @Controller('auth')
@@ -23,7 +23,9 @@ export class AuthController {
 
   @Post('verify-jwt')
   @HttpCode(HttpStatus.OK)
-  verifyJwt(@Body() payload: { jwt: string }) {
-    return this.authService.verifyJwt(payload.jwt);
+  verifyJwt(
+    @Body() jwt: { access_token: string },
+  ): Promise<{ valid_token: boolean }> {
+    return this.authService.verifyJwt(jwt);
   }
 }

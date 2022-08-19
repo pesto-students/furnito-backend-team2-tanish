@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { NewUserDTO } from '../user/dtos/new-user.dto';
-import { ExistingUserDTO } from '../user/dtos/existing-user.dto';
+import { NewUserDTO } from '../user/dto/new-user.dto';
+import { ExistingUserDTO } from '../user/dto/existing-user.dto';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UserDetails } from '../user/user-details.interface';
@@ -63,14 +63,17 @@ export class AuthService {
     if (!user) {
       throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
     }
-    const jwt = this.jwtService.signAsync({ user });
+    const jwt = await this.jwtService.signAsync({ user }, { expiresIn: '8h' });
     return { access_token: jwt };
   }
 
-  verifyJwt(jwt: string) {
+  async verifyJwt(jwt: any): Promise<{ valid_token }> {
     try {
-      const { exp } = this.jwtService.verify(jwt);
-      return { exp };
+      const { exp } = await this.jwtService.verify(jwt.access_token);
+      // check if the expiry time is greater than the current time
+      return exp > Date.now() / 1000
+        ? { valid_token: true }
+        : { valid_token: false };
     } catch (error) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
