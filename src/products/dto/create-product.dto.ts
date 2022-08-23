@@ -1,4 +1,4 @@
-import { IsDecimal, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -10,10 +10,8 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
-  @IsDecimal()
-  price: number;
+  price: string;
 
   @IsNotEmpty()
-  @IsMongoId()
-  category: string;
+  stock: string;
 }

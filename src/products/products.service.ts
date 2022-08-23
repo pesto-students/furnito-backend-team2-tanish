@@ -9,32 +9,31 @@ import { PaginateDto } from '../shared/dto/paginate-sort-dto';
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
+    @InjectModel('Product') private productModel: Model<ProductDocument>,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
-    const createdProduct = new this.productModel(createProductDto);
+  async create(createProductDto: CreateProductDto): Promise<Product | any> {
+    const createdProduct = await new this.productModel(createProductDto);
     return createdProduct.save();
   }
 
   // sorting and pagination
   async findAll(paginateDto: PaginateDto): Promise<any> {
-    const { skip, limit, sortBy, sortOrder } = paginateDto;
-    const count: number = await this.productModel.countDocuments().exec();
+    const { page, limit, sortBy, sortOrder } = paginateDto;
     const docs: Product[] = await this.productModel
       .find()
-      .skip(skip)
-      .limit(limit)
+      .skip((page - 1) * Number(limit))
+      .limit(Number(limit))
       .sort({ [sortBy]: sortOrder })
       .exec();
-    return { count, docs };
+    return docs;
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return this.productModel.findById(id).exec();
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
+  update(id: string, updateProductDto: UpdateProductDto) {
     return this.productModel
       .findByIdAndUpdate(
         id,
@@ -44,7 +43,7 @@ export class ProductsService {
       .exec();
   }
 
-  async remove(id: number) {
-    return this.productModel.deleteOne({ _id: id }).exec();
+  async remove(id: string) {
+    return await this.productModel.deleteOne({ _id: id }).exec();
   }
 }

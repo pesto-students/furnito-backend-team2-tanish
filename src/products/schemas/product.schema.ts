@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { MaxLength } from 'class-validator';
-import mongoose from 'mongoose';
-import { User } from '../../user/user.schema.';
+import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
@@ -11,25 +9,18 @@ export class Product {
   @Prop({ required: ['Please enter the product description'], type: String })
   description: string;
 
-  @Prop({ required: [true, 'Please enter the product price'], type: Number })
-  @MaxLength(10, { message: 'Price cannot exceed 8 digits' })
+  @Prop({ required: [true, 'Please enter the product price'], type: String })
   price: number;
 
-  @Prop()
-  image: URL;
+  @Prop({ required: ['Please enter the product image'], type: String })
+  image: string;
 
-  @Prop([String])
-  gallery: string[];
-
-  @Prop({ required: [true, 'Please Enter the Product Category'], type: String })
+  @Prop({ required: ['Please enter the product category'], type: String })
   category: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true })
-  user: User;
-
-  @Prop({ required: [true, 'Please enter the product quantity'], type: Number })
-  quantity: number;
+  @Prop({ required: ['Please enter the product name'], type: String })
+  stock: string;
 }
 
-export type ProductDocument = Product & mongoose.Document;
+export type ProductDocument = Product & Document;
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -15,17 +15,13 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(
-    @Body() user: ExistingUserDTO,
-  ): Promise<{ access_token: string } | null> {
+  login(@Body() user: ExistingUserDTO): Promise<{ token: string } | null> {
     return this.authService.login(user);
   }
 
   @Post('verify-jwt')
   @HttpCode(HttpStatus.OK)
-  verifyJwt(
-    @Body() jwt: { access_token: string },
-  ): Promise<{ valid_token: boolean }> {
-    return this.authService.verifyJwt(jwt);
+  verifyJwt(@Body() payload: { jwt: string }) {
+    return this.authService.verifyJwt(payload.jwt);
   }
 }

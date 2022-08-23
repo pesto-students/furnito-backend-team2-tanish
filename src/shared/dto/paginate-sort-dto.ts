@@ -3,14 +3,14 @@ import { Type } from 'class-transformer';
 
 export class PaginateDto {
   @IsNotEmpty()
-  @Type(() => Number)
-  @IsNumber()
-  skip: number;
+  @Type(() => String)
+  @IsString()
+  page: number;
 
   @IsNotEmpty()
-  @Type(() => Number)
-  @IsNumber()
-  limit: number;
+  @Type(() => String)
+  @IsString()
+  limit: string;
 
   @IsNotEmpty()
   @Type(() => String)

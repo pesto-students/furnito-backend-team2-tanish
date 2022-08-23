@@ -14,7 +14,7 @@ export class StripeService {
 
   checkout(payment: PaymentRequestBody) {
     const totalPrice = payment.products.reduce(
-      (acc, product) => acc + product.quantity * product.price,
+      (acc, product) => acc + Number(product.stock) * product.price,
       0,
     );
     return this.stripe.paymentIntents.create({

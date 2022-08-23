@@ -57,25 +57,22 @@ export class AuthService {
     return this.userService._getUserDetails(user);
   }
 
-  async login(existingUser: ExistingUserDTO): Promise<{ access_token } | null> {
+  async login(existingUser: ExistingUserDTO): Promise<{ token } | null> {
     const { email, password } = existingUser;
     const user = await this.validateUser(email, password);
     if (!user) {
       throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
     }
     const jwt = await this.jwtService.signAsync({ user }, { expiresIn: '8h' });
-    return { access_token: jwt };
+    return { token: jwt };
   }
 
-  async verifyJwt(jwt: any): Promise<{ valid_token }> {
+  async verifyJwt(jwt: string): Promise<{ exp: number }> {
     try {
-      const { exp } = await this.jwtService.verify(jwt.access_token);
-      // check if the expiry time is greater than the current time
-      return exp > Date.now() / 1000
-        ? { valid_token: true }
-        : { valid_token: false };
+      const { exp } = await this.jwtService.verifyAsync(jwt);
+      return { exp };
     } catch (error) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Invalid JWT', HttpStatus.UNAUTHORIZED);
     }
   }
 }
