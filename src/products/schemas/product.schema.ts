@@ -15,10 +15,9 @@ export class Product {
   @Prop({ required: ['Please enter the product image'], type: String })
   image: string;
 
-  @Prop({ required: ['Please enter the product category'], type: String })
   category: string;
 
-  @Prop({ required: ['Please enter the product name'], type: String })
+  @Prop({ required: ['Please enter the product image'], type: String })
   stock: string;
 }
 

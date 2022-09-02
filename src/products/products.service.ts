@@ -30,11 +30,11 @@ export class ProductsService {
   }
 
   async findOne(id: string) {
-    return this.productModel.findById(id).exec();
+    return await this.productModel.findById(id).exec();
   }
 
-  update(id: string, updateProductDto: UpdateProductDto) {
-    return this.productModel
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    return await this.productModel
       .findByIdAndUpdate(
         id,
         { ...updateProductDto },

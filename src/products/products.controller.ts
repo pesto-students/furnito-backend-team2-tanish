@@ -1,11 +1,11 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,11 +22,13 @@ export class ProductsController {
 
   // only-admin
   @Post('add')
+  @UseGuards(JwtGuard)
   create(@Body() createProductDto: CreateProductDto): Promise<ProductDocument> {
     return this.productsService.create(createProductDto);
   }
 
   @Get('get')
+  @UseGuards(JwtGuard)
   findAll(@Query() paginateSortDto: PaginateDto) {
     return this.productsService.findAll(paginateSortDto);
   }
@@ -39,12 +41,14 @@ export class ProductsController {
 
   // only-admin
   @Patch(':id')
+  @UseGuards(JwtGuard)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(id, updateProductDto);
   }
 
   // only-admin
   @Delete('delete')
+  @UseGuards(JwtGuard)
   remove(@Query('id') id: string) {
     return this.productsService.remove(id);
   }

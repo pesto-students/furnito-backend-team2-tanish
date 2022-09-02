@@ -75,4 +75,40 @@ export class AuthService {
       throw new HttpException('Invalid JWT', HttpStatus.UNAUTHORIZED);
     }
   }
+
+  async updatePassword(
+    jwt: string,
+    password: string,
+    newPassword: string,
+  ): Promise<UserDetails | null> {
+    const { user } = await this.jwtService.verifyAsync(jwt);
+    const doesPasswordMatch = await this.doesPasswordMatch(
+      password,
+      user.password,
+    );
+    if (!doesPasswordMatch) {
+      throw new HttpException(
+        'Password does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const hashedPassword = await this.hashPassword(newPassword);
+    const updatedUser = await this.userService.updatePassword(
+      user.id,
+      hashedPassword,
+    );
+    return this.userService._getUserDetails(updatedUser);
+  }
+
+  resetPassword(email: string) {
+    return this.userService.resetPassword(email);
+  }
+
+  async isAdmin(user: any): Promise<boolean> {
+    try {
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }

@@ -5,19 +5,23 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
 import { StripeModule } from './stripe/stripe.module';
+import { CategoriesModule } from './categories/categories.module';
+import { OrderModule } from './order/order.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(
-      'mongodb+srv://furnito:furnito123@cluster0.pbn2qja.mongodb.net/User?retryWrites=true&w=majority',
-    ),
+    MongooseModule.forRoot(process.env.DATABASE_URL, {}),
     UserModule,
     AuthModule,
     ProductsModule,
     StripeModule,
+    CategoriesModule,
+    OrderModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {}

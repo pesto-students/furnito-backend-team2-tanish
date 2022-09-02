@@ -14,11 +14,12 @@ export class StripeService {
 
   checkout(cart: Cart) {
     const totalPrice = cart.reduce(
-      (acc, item) => acc + item.quantity * item.price,
+      (acc, item) => acc + Number(item.quantity) * item.price,
       0,
     );
+    const gst = totalPrice * 0.18;
     return this.stripe.paymentIntents.create({
-      amount: +totalPrice.toFixed(2) * 100,
+      amount: +totalPrice.toFixed(2) * 100 + gst,
       currency: 'inr',
       payment_method_types: ['card'],
     });
