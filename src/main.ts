@@ -13,11 +13,16 @@ async function bootstrap() {
       },
     }),
   );
+
   const config = new DocumentBuilder()
     .setTitle('Furnito')
     .setDescription('We ensure the best quality for your furniture')
     .setVersion('1.0')
     .addTag('furnito')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
   app.enableCors();
   app.setGlobalPrefix('api');

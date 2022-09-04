@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductDocument } from './schemas/product.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateDto } from '../shared/dto/paginate-sort-dto';
 
@@ -29,8 +29,13 @@ export class ProductsService {
     return docs;
   }
 
-  async findOne(id: string) {
-    return await this.productModel.findById(id).exec();
+  async findById(id: string): Promise<any> {
+    // find product by id
+    const product = await this.productModel.findById(id).exec();
+    if (!product) {
+      throw new Error('No product found');
+    }
+    return product;
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {

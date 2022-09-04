@@ -15,6 +15,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginateDto } from '../shared/dto/paginate-sort-dto';
 import { ProductDocument } from './schemas/product.schema';
 import { JwtGuard } from '../auth/guard/jwt.guard';
+import { Types } from 'mongoose';
 
 @Controller('product')
 export class ProductsController {
@@ -27,16 +28,15 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('get/:id')
+  getProduct(@Param('id') id: string): Promise<ProductDocument | null> {
+    return this.productsService.findById(id);
+  }
+
   @Get('get')
   @UseGuards(JwtGuard)
   findAll(@Query() paginateSortDto: PaginateDto) {
     return this.productsService.findAll(paginateSortDto);
-  }
-
-  @UseGuards(JwtGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<ProductDocument> {
-    return this.productsService.findOne(id);
   }
 
   // only-admin

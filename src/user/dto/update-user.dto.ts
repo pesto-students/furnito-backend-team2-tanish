@@ -1,27 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsOptional, ValidateIf } from 'class-validator';
 
-export class NewUserDTO {
+export class UpdateUserDto {
   @ApiProperty({
     description: 'The name of the User',
     example: 'Vasu Vallabh',
   })
-  @IsNotEmpty()
+  @IsOptional()
   name: string;
 
   @ApiProperty({
     description: 'The email address of the User',
     example: 'vasu.vallabh@gmail.com',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   email: string;
 
   @ApiProperty({
-    description: 'The password of the User',
-    example: 'Password@123',
+    description: 'The role of the user',
+    example: 'admin || user',
   })
-  @IsNotEmpty()
-  @Length(8, 24)
-  password: string;
+  @IsOptional()
+  @ValidateIf((o) => o.role === 'admin' || o.role === 'user')
+  role: string;
 }

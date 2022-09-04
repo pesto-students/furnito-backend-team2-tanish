@@ -44,7 +44,6 @@ export class OrderService {
     _id: Types.ObjectId,
     body: { status: string },
   ): Promise<any> {
-    console.log(_id, body?.status);
     const status = body?.status;
     // find the order and update the status to cancelled
     const order = await this.orderModel.findOneAndUpdate(

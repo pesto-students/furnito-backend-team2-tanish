@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDetails } from './user-details.interface';
-import { User, UserDocument } from './user.schema.';
-import { ExistingUserDTO } from './dto/existing-user.dto';
+import { User, UserDocument } from './schema/user.schema.';
 import { PaginateDto } from '../shared/dto/paginate-sort-dto';
-import { Product } from '../products/schemas/product.schema';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -18,17 +17,18 @@ export class UserService {
       id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     };
   }
 
-  async findOneByEmail(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email }).exec();
+  async findOneByEmail(email: string): Promise<any> {
+    return await this.userModel.findOne({ email }).select('password').exec();
   }
 
   async findById(id: string): Promise<UserDetails | null> {
     const user = this.userModel.findById(id).exec();
     if (!user) {
-      return null;
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     return this._getUserDetails(await user);
   }
@@ -46,17 +46,26 @@ export class UserService {
     return newUser.save();
   }
 
-  delete(id: string) {
-    return this.userModel.findByIdAndDelete(id);
-  }
-
   async update(
     id: string,
-    updateUserDto: ExistingUserDTO,
+    updateUserDto: UpdateUserDto,
   ): Promise<UserDocument | null> {
-    return await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { useFindAndModify: false })
+    console.log(id, updateUserDto);
+    const updatedUser = await this.userModel
+      .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })
       .exec();
+    if (!updatedUser) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return updatedUser;
+  }
+
+  async delete(id: string): Promise<string> {
+    const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
+    if (!deletedUser) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return deletedUser.name + ' deleted successfully';
   }
 
   async updatePassword(id, hashedPassword: string) {
@@ -69,14 +78,6 @@ export class UserService {
       .exec();
   }
 
-  async resetPassword(email: string) {
-    return this.userModel.findOneAndUpdate(
-      { email },
-      { password: '123456' },
-      { useFindAndModify: false },
-    );
-  }
-
   async findAll(paginateDto: PaginateDto): Promise<any> {
     const { page, limit, sortBy, sortOrder } = paginateDto;
     const docs: User[] = await this.userModel
@@ -85,11 +86,14 @@ export class UserService {
       .limit(Number(limit))
       .sort({ [sortBy]: sortOrder })
       .exec();
-    return docs;
-  }
-
-  async isAdmin(user: UserDocument): Promise<boolean> {
-    const dbUser = await this.userModel.findById(user._id).exec();
-    return dbUser.role === 'admin';
+    if (!docs) {
+      throw new HttpException('No users found', HttpStatus.NOT_FOUND);
+    }
+    const total = await this.userModel.countDocuments().exec();
+    return {
+      docs,
+      total,
+      page,
+    };
   }
 }

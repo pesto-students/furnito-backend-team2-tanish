@@ -1,24 +1,36 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginateDto {
+  @ApiProperty({
+    description: 'The page number',
+    example: 1,
+  })
   @IsNotEmpty()
-  @Type(() => String)
   @IsString()
   page: number;
 
+  @ApiProperty({
+    description: 'The number of items per page',
+    example: 10,
+  })
   @IsNotEmpty()
-  @Type(() => String)
   @IsString()
-  limit: string;
+  limit: number;
 
+  @ApiProperty({
+    description: 'The field to sort by',
+    example: 'name',
+  })
   @IsNotEmpty()
-  @Type(() => String)
   @IsString()
   sortBy: string;
 
+  @ApiProperty({
+    description: 'The sort order',
+    example: 'asc | desc',
+  })
   @IsNotEmpty()
-  @Type(() => String)
   @IsString()
   sortOrder: 'asc' | 'desc';
 }
