@@ -22,7 +22,14 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<any> {
-    return await this.userModel.findOne({ email }).select('password').exec();
+    // get user by email
+    const user = await this.userModel
+      .findOne({ email })
+      .populate('role')
+      .select('password')
+      .exec();
+    console.log(user);
+    return user;
   }
 
   async findById(id: string): Promise<UserDetails | null> {
@@ -79,9 +86,9 @@ export class UserService {
   }
 
   async findAll(paginateDto: PaginateDto): Promise<any> {
-    const { page, limit, sortBy, sortOrder } = paginateDto;
+    const { page, limit, sortBy, sortOrder, name } = paginateDto;
     const docs: User[] = await this.userModel
-      .find()
+      .find(name?.length > 0 ? { name: { $regex: name, $options: 'i' } } : {})
       .skip((page - 1) * Number(limit))
       .limit(Number(limit))
       .sort({ [sortBy]: sortOrder })
@@ -91,7 +98,7 @@ export class UserService {
     }
     const total = await this.userModel.countDocuments().exec();
     return {
-      docs,
+      users: docs,
       total,
       page,
     };

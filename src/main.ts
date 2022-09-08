@@ -18,7 +18,6 @@ async function bootstrap() {
     .setTitle('Furnito')
     .setDescription('We ensure the best quality for your furniture')
     .setVersion('1.0')
-    .addTag('furnito')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',

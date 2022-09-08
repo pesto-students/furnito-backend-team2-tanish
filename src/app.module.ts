@@ -5,9 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
 import { StripeModule } from './stripe/stripe.module';
-import { CategoriesModule } from './categories/categories.module';
 import { OrderModule } from './order/order.module';
-import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -19,9 +17,7 @@ import { FeedbackModule } from './feedback/feedback.module';
     AuthModule,
     ProductsModule,
     StripeModule,
-    CategoriesModule,
     OrderModule,
-    FeedbackModule,
   ],
 })
 export class AppModule {}

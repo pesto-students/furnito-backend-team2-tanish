@@ -54,6 +54,7 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
+    console.log(user);
     return this.userService._getUserDetails(user);
   }
 
@@ -69,8 +70,7 @@ export class AuthService {
 
   async verifyJwt(jwt: string): Promise<{ exp: number }> {
     try {
-      const { exp } = await this.jwtService.verifyAsync(jwt);
-      return { exp };
+      return await this.jwtService.verifyAsync(jwt);
     } catch (error) {
       throw new HttpException('Invalid JWT', HttpStatus.UNAUTHORIZED);
     }
@@ -78,7 +78,10 @@ export class AuthService {
 
   async isAdmin(user: any): Promise<boolean> {
     try {
-      return true;
+      if (user.role === 'admin') {
+        console.log('User is admin');
+        return true;
+      }
     } catch (error) {
       console.log(error);
     }

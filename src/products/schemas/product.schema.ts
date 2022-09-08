@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import * as Mongoose from 'mongoose';
+import { User } from '../../user/schema/user.schema.';
 
 @Schema({ timestamps: true })
-export class Product {
+export class Product extends Document {
   @Prop({
     required: [true, 'Please enter the product name'],
     trim: true,
@@ -18,25 +20,15 @@ export class Product {
 
   @Prop({
     required: [true, 'Please enter the product description'],
-    maxlength: [8, 'Price cannot be more than 8 characters'],
     type: Number,
   })
   price: number;
 
   @Prop({
-    type: Number,
-    default: 0,
+    type: Array<URL>(),
+    required: [true, 'Please enter the product images'],
   })
-  rating: number;
-
-  images: [
-    {
-      url: {
-        type: string;
-        required: true;
-      };
-    },
-  ];
+  images: [];
 
   @Prop({
     required: [true, 'Please enter product category'],
@@ -47,7 +39,6 @@ export class Product {
   @Prop({
     default: 0,
     required: [true, 'Please enter product category'],
-    maxlength: [5, 'Stock cannot be more than 5 characters'],
     type: Number,
   })
   stock: number;
@@ -57,34 +48,34 @@ export class Product {
   })
   numOfReviews: number;
 
-  reviews: [
-    {
-      user: {
-        type: Types.ObjectId;
-        ref: 'User';
-        required: true;
-      };
-      name: {
-        type: string;
-        required: true;
-      };
-      rating: {
-        type: number;
-        required: true;
-      };
-      comment: {
-        type: string;
-        required: true;
-      };
-    },
-  ];
+  @Prop({
+    type: [
+      {
+        user: { type: Mongoose.Schema.Types.ObjectId, ref: 'User' },
+        name: String,
+        rating: Number,
+        comment: String,
+      },
+    ],
+  })
+  reviews: {
+    user: Types.ObjectId;
+    name: string;
+    rating: number;
+    comment: string;
+  }[];
 
   @Prop({
-    required: true,
-    type: Types.ObjectId,
+    default: 0,
+  })
+  ratings: number;
+
+  @Prop({
+    type: Mongoose.Schema.Types.ObjectId,
+    required: false,
     ref: 'User',
   })
-  user: Types.ObjectId;
+  user: Mongoose.Schema.Types.ObjectId;
 }
 
 export type ProductDocument = Product & Document;

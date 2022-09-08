@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AdminGuard } from '../auth/guard/admin.guard';
 
 @ApiBearerAuth()
 @ApiTags('user')
@@ -29,14 +30,17 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   // Admin only - get all users
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Get all the users' })
   @Get('get')
+  @UseGuards(JwtGuard, AdminGuard)
   getAll(@Query() paginateSortDto: PaginateDto) {
     return this.userService.findAll(paginateSortDto);
   }
 
   // User Details by user id
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get use details' })
+  @ApiOperation({ summary: 'Get user details' })
   @ApiParam({ name: 'id', required: true })
   @UseGuards(JwtGuard)
   @Get(':id')
@@ -58,11 +62,11 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  // update user details
+  // delete user
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get use details' })
+  @ApiOperation({ summary: 'Delete user' })
   @ApiParam({ name: 'id', required: true })
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, AdminGuard)
   @Delete('delete/:id')
   deleteUser(@Param('id') id: string): Promise<string | null> {
     return this.userService.delete(id);

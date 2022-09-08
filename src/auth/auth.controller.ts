@@ -1,18 +1,10 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { NewUserDTO } from '../user/dto/new-user.dto';
 import { ExistingUserDTO } from '../user/dto/existing-user.dto';
 import { UserDetails } from '../user/user-details.interface';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { VerifyTokenDto } from '../user/dto/verify-token.dto';
-import { JwtGuard } from './guard/jwt.guard';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -29,7 +21,7 @@ export class AuthController {
   }
 
   // user login
-  @ApiOperation({ summary: 'Login a User' })
+  @ApiOperation({ summary: 'User login' })
   @ApiBody({ type: ExistingUserDTO })
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -38,7 +30,7 @@ export class AuthController {
   }
 
   // verify JWT token
-  @ApiOperation({ summary: 'Verify a User' })
+  @ApiOperation({ summary: 'Verify user' })
   @ApiBody({ type: VerifyTokenDto })
   @Post('verify-jwt')
   @HttpCode(HttpStatus.OK)

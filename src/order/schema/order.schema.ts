@@ -1,116 +1,104 @@
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import Mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Order {
-  shippingInfo: {
-    address: {
-      type: string;
-      required: true;
-    };
-    city: {
-      type: string;
-      required: true;
-    };
-    state: {
-      type: string;
-      required: true;
-    };
-    country: {
-      type: string;
-      required: true;
-    };
-    pinCode: {
-      type: string;
-      required: true;
-    };
-    phoneNo: {
-      type: number;
-      required: true;
-    };
-  };
-
-  orderedItems: [
-    {
-      name: {
-        type: string;
-        required: true;
-      };
-      price: {
-        type: number;
-        required: true;
-      };
-      quantity: {
-        type: number;
-        required: true;
-      };
-      image: {
-        type: string;
-        required: true;
-      };
-      product: {
-        type: Types.ObjectId;
-        ref: 'Product';
-        required: true;
-      };
+  @Prop({
+    type: {
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      country: { type: String, required: true },
+      pinCode: { type: String, required: true },
+      phoneNo: { type: Number, required: true },
     },
-  ];
-
-  user: {
-    type: Types.ObjectId;
-    ref: 'User';
-    required: true;
+  })
+  shippingInfo: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    pinCode: string;
+    phoneNo: number;
   };
 
+  @Prop({
+    type: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, required: true },
+        quantity: { type: Number, required: true },
+        image: { type: String, required: true },
+        product: { type: Mongoose.Schema.Types.ObjectId, ref: 'Product' },
+      },
+    ],
+  })
+  orderedItems: {
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+    product: Mongoose.Schema.Types.ObjectId;
+  }[];
+
+  @Prop({
+    type: Mongoose.Schema.Types.ObjectId,
+    required: false,
+    ref: 'User',
+  })
+  user: Mongoose.Schema.Types.ObjectId;
+
+  @Prop({
+    type: {
+      id: { type: String, required: true },
+      status: { type: String, required: true },
+    },
+  })
   paymentInfo: {
-    id: {
-      type: string;
-      required: true;
-    };
-    status: {
-      type: string;
-      required: true;
-    };
+    id: string;
+    status: string;
   };
 
-  paidAt: {
-    type: Date;
-    required: true;
-  };
+  @Prop({
+    type: Date,
+    default: Date.now,
+  })
+  paidAt: Date;
 
-  itemsPrice: {
-    type: number;
-    required: true;
-    default: 0.0;
-  };
+  @Prop({
+    type: Number,
+    required: true,
+    default: 0.0,
+  })
+  itemsPrice: number;
 
-  taxPrice: {
-    type: number;
-    required: true;
-    default: 0.0;
-  };
+  @Prop({
+    type: Number,
+    required: true,
+    default: 0.0,
+  })
+  taxPrice: number;
 
-  shippingPrice: {
-    type: number;
-    required: true;
-    default: 0.0;
-  };
+  @Prop({
+    type: Number,
+    required: true,
+    default: 0.0,
+  })
+  shippingPrice: number;
 
-  totalPrice: {
-    type: number;
-    required: true;
-    default: 0.0;
-  };
+  @Prop({
+    type: Number,
+    required: true,
+    default: 0.0,
+  })
+  totalPrice: number;
 
-  orderStatus: {
-    type: string;
-    required: true;
-    default: 'Processing';
-  };
-
-  deliveredAt: {
-    type: Date;
-  };
+  @Prop({
+    type: String,
+    required: true,
+    default: 'Processing',
+  })
+  orderStatus: string;
 }
 
 export type OrderDocument = Order & Document;

@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginateDto {
@@ -15,7 +21,6 @@ export class PaginateDto {
     example: 10,
   })
   @IsNotEmpty()
-  @IsString()
   limit: number;
 
   @ApiProperty({
@@ -23,14 +28,21 @@ export class PaginateDto {
     example: 'name',
   })
   @IsNotEmpty()
-  @IsString()
   sortBy: string;
 
   @ApiProperty({
-    description: 'The sort order',
-    example: 'asc | desc',
+    description: 'Order of sorting',
+    example: 'desc',
   })
   @IsNotEmpty()
+  sortOrder: 'asc';
+
+  @ApiProperty({
+    description: 'filter name',
+    example: 'Oak',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  sortOrder: 'asc' | 'desc';
+  name: string;
 }
