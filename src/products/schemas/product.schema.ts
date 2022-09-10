@@ -55,6 +55,7 @@ export class Product extends Document {
         name: String,
         rating: Number,
         comment: String,
+        updatedAt: Date,
       },
     ],
   })
@@ -63,6 +64,7 @@ export class Product extends Document {
     name: string;
     rating: number;
     comment: string;
+    updatedAt: Date;
   }[];
 
   @Prop({

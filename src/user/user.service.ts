@@ -26,6 +26,8 @@ export class UserService {
     const user = await this.userModel
       .findOne({ email })
       .populate('role')
+      .populate('name')
+      .populate('email')
       .select('password')
       .exec();
     console.log(user);

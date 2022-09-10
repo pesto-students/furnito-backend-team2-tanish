@@ -85,6 +85,7 @@ export class ProductsService {
         if (productReview.user.toString() === params.userId.toString()) {
           productReview.rating = review.rating;
           productReview.comment = review.comment;
+          productReview.updatedAt = new Date();
         }
       });
     } else {
@@ -94,6 +95,7 @@ export class ProductsService {
         name: params.username,
         rating: review.rating,
         comment: review.comment,
+        updatedAt: new Date(),
       });
       // update the number of reviews
       product.numOfReviews = product.reviews.length;
