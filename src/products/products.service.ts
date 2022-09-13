@@ -83,6 +83,7 @@ export class ProductsService {
     if (isReviewed) {
       product.reviews.forEach((productReview) => {
         if (productReview.user.toString() === params.userId.toString()) {
+          productReview.name = params.username;
           productReview.rating = review.rating;
           productReview.comment = review.comment;
           productReview.updatedAt = new Date();
