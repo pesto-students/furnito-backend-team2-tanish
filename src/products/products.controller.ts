@@ -129,4 +129,24 @@ export class ProductsController {
   ) {
     return this.productsService.deleteProductReview(id, reviewId.reviewId);
   }
+
+  // Get all products by category
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Get all products by category' })
+  @Get('categories')
+  @UseGuards(JwtGuard)
+  findAllByCategories(@Query() paginateSortDto: PaginateDto) {
+    return this.productsService.getProductsByCategories(paginateSortDto);
+  }
+
+  // get count of all products, product reviews, users and orders
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Get count of all products, product reviews, users and orders',
+  })
+  @UseGuards(JwtGuard, AdminGuard)
+  @Get('count')
+  getCount() {
+    return this.productsService.getCount();
+  }
 }

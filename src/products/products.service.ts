@@ -8,12 +8,14 @@ import { PaginateDto } from '../shared/dto/paginate-sort-dto';
 import { ProductReviewDto } from './dto/product-review.dto';
 import { UserDetailsDto } from '../user/dto/user-details.dto';
 import { User } from '../user/schema/user.schema.';
+import { Order } from '../order/schema/order.schema';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel('Product') private productModel: Model<ProductDocument>,
     @InjectModel('User') private userModel: Model<User>,
+    @InjectModel('Order') private orderModel: Model<Order>,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product | any> {
@@ -167,5 +169,59 @@ export class ProductsService {
         { new: true },
       )
       .exec();
+  }
+
+  async getProductsByCategories(paginateDto: PaginateDto): Promise<any> {
+    const { page, limit, sortBy, sortOrder, name } = paginateDto;
+    if (!name) {
+      throw new HttpException(
+        'Category name is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const docs: Product[] = await this.productModel
+      .find(name ? { category: { $regex: name, $options: 'i' } } : {})
+      .skip((page - 1) * Number(limit))
+      .limit(Number(limit))
+      .sort({ [sortBy]: sortOrder })
+      .exec();
+
+    // total number of products
+    const total = await this.productModel
+      .countDocuments({ category: name })
+      .exec();
+    console.log(total);
+    return {
+      products: docs,
+      total,
+      page,
+    };
+  }
+
+  async getCount(): Promise<any> {
+    const products = await this.productModel.countDocuments().exec();
+
+    // get each product review count and add them
+    const reviews = await this.productModel.aggregate([
+      {
+        $match: { numOfReviews: { $gt: 0 } },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          reviews: { $sum: '$numOfReviews' },
+        },
+      },
+    ]);
+
+    const users = await this.userModel.countDocuments().exec();
+    const orders = await this.orderModel.countDocuments().exec();
+
+    return {
+      products,
+      orders,
+      users,
+      reviews: reviews.reduce((acc, item) => item.reviews + acc, 0),
+    };
   }
 }
