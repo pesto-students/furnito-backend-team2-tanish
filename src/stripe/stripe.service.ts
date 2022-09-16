@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-import { Cart } from './cart.model';
 
 @Injectable()
 export class StripeService {
@@ -12,14 +11,9 @@ export class StripeService {
     });
   }
 
-  checkout(cart: Cart) {
-    const totalPrice = cart.reduce(
-      (acc, item) => acc + Number(item.quantity) * item.price,
-      0,
-    );
-    const gst = totalPrice * 0.18;
+  checkout(totalAmount: string) {
     return this.stripe.paymentIntents.create({
-      amount: +totalPrice.toFixed(2) * 100 + gst,
+      amount: Number(totalAmount) * 100,
       currency: 'inr',
       payment_method_types: ['card'],
     });

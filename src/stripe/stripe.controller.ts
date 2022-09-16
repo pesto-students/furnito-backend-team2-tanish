@@ -1,15 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { Cart } from './cart.model';
 
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   @Post()
-  checkout(@Body() body: { cart: Cart }) {
+  checkout(@Body() body: { total: string }) {
     try {
-      return this.stripeService.checkout(body.cart);
+      return this.stripeService.checkout(body.total);
     } catch (error) {
       return error;
     }
