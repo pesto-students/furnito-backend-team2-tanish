@@ -5,6 +5,8 @@ import Mongoose from 'mongoose';
 export class Order {
   @Prop({
     type: {
+      name: { type: String, required: true },
+      email: { type: String, required: true },
       address: { type: String, required: true },
       city: { type: String, required: true },
       state: { type: String, required: true },
@@ -14,6 +16,8 @@ export class Order {
     },
   })
   shippingInfo: {
+    name: string;
+    email: string;
     address: string;
     city: string;
     state: string;

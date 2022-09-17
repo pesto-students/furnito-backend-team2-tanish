@@ -64,7 +64,21 @@ export class ProductsService {
 
   // delete product
   async remove(id: string): Promise<any> {
-    return await this.productModel.deleteOne({ _id: id }).exec();
+    // check for id validity
+    const product = await this.productModel.findById({ _id: id }).exec();
+    if (!product) {
+      throw new HttpException('No product found', HttpStatus.NOT_FOUND);
+    }
+
+    // delete product
+    try {
+      await this.productModel.findByIdAndDelete({ _id: id }).exec();
+      return {
+        message: 'Product deleted successfully',
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async addReview(

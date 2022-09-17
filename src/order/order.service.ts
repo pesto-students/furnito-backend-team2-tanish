@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schema/order.schema';
 import { PaginateDto } from '../shared/dto/paginate-sort-dto';
 
@@ -14,8 +14,12 @@ export class OrderService {
   // create a new order
   async create(createOrderDto: CreateOrderDto): Promise<Order | any> {
     // create an order
-    const order = await new this.orderModel(createOrderDto);
-    return order.save();
+    try {
+      const order = new this.orderModel(createOrderDto);
+      return await order.save();
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   // get all the orders
@@ -39,7 +43,16 @@ export class OrderService {
 
   // delete an order by id
   async remove(id: string): Promise<any> {
-    return await this.orderModel.findByIdAndDelete({ _id: id }).exec();
+    const order = await this.orderModel.findByIdAndDelete({ _id: id }).exec();
+    if (!order) {
+      throw new HttpException('No order found', HttpStatus.NOT_FOUND);
+    }
+    try {
+      await this.orderModel.findByIdAndDelete({ _id: id }).exec();
+      return { message: 'Order deleted successfully' };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOneAndUpdateStatus(id: string, status: string): Promise<any> {

@@ -37,6 +37,7 @@ export class OrderController {
   @UseGuards(JwtGuard)
   @Post('add')
   create(@Body() createOrderDto: CreateOrderDto): Promise<OrderDocument> {
+    console.log(createOrderDto);
     return this.orderService.create(createOrderDto);
   }
 

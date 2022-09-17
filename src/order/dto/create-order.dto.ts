@@ -4,6 +4,22 @@ import { ObjectId } from 'mongoose';
 
 class ShippingInfo {
   @ApiProperty({
+    description: 'The name of the person who will receive the order',
+    example: 'Vasu Vallabh',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    description: 'The email of the person who will receive the order',
+    example: 'vasu123@gmail.com',
+  })
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({
     description: 'The address of the person who will receive the order',
     example: 'House 1, Block 2, Street 3, Area 4',
   })
