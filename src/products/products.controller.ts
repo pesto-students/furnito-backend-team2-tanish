@@ -52,7 +52,6 @@ export class ProductsController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get all products' })
   @Get('get')
-  @UseGuards(JwtGuard)
   findAll(@Query() paginateSortDto: PaginateDto) {
     return this.productsService.findAll(paginateSortDto);
   }
